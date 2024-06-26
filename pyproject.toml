@@ -11,6 +11,9 @@ black = "^24.4.2"
 flake8 = "^7.0.0"
 mypy = "^1.10.0"
 isort = "^5.13.2"
+requests = "^2.32.3"
+pandas = "^2.2.2"
+datetime = "^5.5"
 
 
 [build-system]
