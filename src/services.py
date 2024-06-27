@@ -1,6 +1,11 @@
 import pandas as pd
 
+# import sys, os
+# sys.path.append(os.getcwd())
+from src.reports import log
 
+
+@log()
 def search(filename: str, to_find: str) -> list:
     """Простой поиск по строке в категории/описании"""
     data = pd.read_excel(filename)

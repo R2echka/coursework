@@ -5,11 +5,16 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
+# import sys
+# sys.path.append(os.getcwd())
+from src.reports import log
+
 load_dotenv()
 apikey = os.getenv("api_key")
 stock_apikey = os.getenv("stock_api")
 
 
+@log()
 def greeting(dt_: str) -> str:
     """Приветствие программы в зависимости от времени"""
     formated_date = dt.strptime(dt_, "%Y-%m-%d %H:%M:%S")
@@ -24,6 +29,7 @@ def greeting(dt_: str) -> str:
         return "Добрый вечер"
 
 
+@log()
 def card_info(filename: str) -> dict:
     """Информация по каждой карте в формате словаря"""
     data = pd.read_excel(filename)
@@ -45,6 +51,7 @@ def card_info(filename: str) -> dict:
     return {"cards": sorted(card_info_list, key=lambda x: int(x["last_digits"]))}
 
 
+@log()
 def top_transactions(filename: str) -> list:
     """Выводит топ-5 транзакций в формате словаря"""
     data = pd.read_excel(filename)
@@ -62,6 +69,7 @@ def top_transactions(filename: str) -> list:
     return top
 
 
+@log()
 def currency_rate(currency: str) -> float:
     """Выводит актуальную информацию по курсу валют через api-ключ"""
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
@@ -70,6 +78,7 @@ def currency_rate(currency: str) -> float:
     return round(data["rates"]["RUB"], 2)
 
 
+@log()
 def stock_rate(stock: str) -> float:
     """Выводит актуальную стоимость акиций из S&P 500"""
     url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={stock}&apikey={stock_apikey}"
