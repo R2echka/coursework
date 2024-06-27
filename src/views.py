@@ -1,4 +1,3 @@
-import json
 import os
 from datetime import datetime as dt
 
@@ -39,11 +38,11 @@ def card_info(filename: str) -> dict:
             cashback = total_spent % 100
             info = {
                 "last_digits": last_digits,
-                "total_spent": abs(total_spent),
+                "total_spent": round(abs(total_spent), 2),
                 "cashback": int(cashback),
             }
             card_info_list.append(info)
-    return {"cards": card_info_list}
+    return {"cards": sorted(card_info_list, key=lambda x: int(x["last_digits"]))}
 
 
 def top_transactions(filename: str) -> list:
@@ -67,7 +66,7 @@ def currency_rate(currency: str) -> float:
     """Выводит актуальную информацию по курсу валют через api-ключ"""
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
     response = requests.get(url, headers={"apikey": apikey}, timeout=30)
-    data = json.loads(response.text)
+    data = response.json()
     return round(data["rates"]["RUB"], 2)
 
 
