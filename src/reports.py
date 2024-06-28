@@ -23,11 +23,11 @@ def spending_by_category(
     data["Дата платежа"] = pd.to_datetime(data["Дата платежа"])
     if date is None:
         date = dt.now()
-    start_date = pd.to_datetime(date, format="%Y.%m.%d") - pd.offsets.MonthEnd(3)
+    start_date = pd.to_datetime(date, format="%d.%m.%Y") - pd.offsets.MonthEnd(3)
     filtered_data = data[
         data["Дата платежа"].notnull()
         & data["Дата платежа"].between(
-            start_date, pd.to_datetime(date, format="%Y.%m.%d")
+            start_date, pd.to_datetime(date, format="%d.%m.%Y")
         )
     ]
     logger.info(filtered_data)

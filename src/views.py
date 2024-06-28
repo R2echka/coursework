@@ -1,5 +1,6 @@
 import os
 from datetime import datetime as dt
+from typing import Optional
 
 import pandas as pd
 import requests
@@ -10,9 +11,12 @@ apikey = os.getenv("api_key")
 stock_apikey = os.getenv("stock_api")
 
 
-def greeting(dt_: str) -> str:
+def greeting(dt_: Optional[str] = None) -> str:
     """Приветствие программы в зависимости от времени"""
-    formated_date = dt.strptime(dt_, "%Y-%m-%d %H:%M:%S")
+    if dt_ is None:
+        formated_date = dt.strptime(str(dt.now()), "%Y-%m-%d %H:%M:%S.%f")
+    else:
+        formated_date = dt.strptime(dt_, "%Y-%m-%d %H:%M:%S")
     hour = int(formated_date.strftime("%H"))
     if hour < 7:
         return "Доброй ночи"
@@ -24,9 +28,8 @@ def greeting(dt_: str) -> str:
         return "Добрый вечер"
 
 
-def card_info(filename: str) -> dict:
+def card_info(data: pd.DataFrame) -> list:
     """Информация по каждой карте в формате словаря"""
-    data = pd.read_excel(filename)
     cards = set(data["Номер карты"])
     card_info_list = []
     for card in cards:
@@ -42,12 +45,11 @@ def card_info(filename: str) -> dict:
                 "cashback": int(cashback),
             }
             card_info_list.append(info)
-    return {"cards": sorted(card_info_list, key=lambda x: int(x["last_digits"]))}
+    return sorted(card_info_list, key=lambda x: int(x["last_digits"]))
 
 
-def top_transactions(filename: str) -> list:
+def top_transactions(data: pd.DataFrame) -> list:
     """Выводит топ-5 транзакций в формате словаря"""
-    data = pd.read_excel(filename)
     transactions = data.sort_values("Сумма операции", key=abs, ascending=False)
     top = []
     for _, row in transactions.head().iterrows():
@@ -65,7 +67,7 @@ def top_transactions(filename: str) -> list:
 def currency_rate(currency: str) -> float:
     """Выводит актуальную информацию по курсу валют через api-ключ"""
     url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
-    response = requests.get(url, headers={"apikey": apikey}, timeout=30)
+    response = requests.get(url, headers={"apikey": apikey}, timeout=40)
     data = response.json()
     return round(data["rates"]["RUB"], 2)
 

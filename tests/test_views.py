@@ -3,7 +3,10 @@ from unittest.mock import patch
 # import pytest
 # import sys, os
 # sys.path.append(os.getcwd())
-from src.views import card_info, currency_rate, greeting, stock_rate, top_transactions
+import pandas as pd
+
+from src.views import (card_info, currency_rate, greeting, stock_rate,
+                       top_transactions)
 
 # import pytest
 
@@ -18,7 +21,7 @@ def test_greeting() -> None:
 
 def test_card_info() -> None:
     """Тест вывода информации по карте"""
-    assert card_info("data/operations.xls")["cards"][0] == {
+    assert card_info(pd.read_excel("data/operations.xls"))[0] == {
         "last_digits": "1112",
         "total_spent": 46207.08,
         "cashback": 92,
@@ -27,7 +30,7 @@ def test_card_info() -> None:
 
 def test_top_transactions() -> None:
     """Тест вывода топа транзакций по сумме"""
-    assert top_transactions("data/operations.xls")[0] == {
+    assert top_transactions(pd.read_excel("data/operations.xls"))[0] == {
         "date": "21.03.2019",
         "amount": 190044.51,
         "category": "Переводы",

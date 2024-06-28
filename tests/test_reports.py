@@ -10,8 +10,8 @@ def test_spending_by_category() -> None:
     transactions = pd.DataFrame(
         {
             "Категория": ["Каршеринг", "Супермаркеты", "Каршеринг"],
-            "Дата платежа": ["2024.05.15", "2024.03.20", "2023.10.17"],
+            "Дата платежа": ["15.05.2024", "20.03.2024", "17.10.2023"],
         }
     )
-    result = spending_by_category(transactions, "Каршеринг", "2024.06.01")
+    result = spending_by_category(transactions, "Каршеринг", "01.06.2024")
     assert result is not None

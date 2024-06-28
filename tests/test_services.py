@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 # import sys, os
@@ -52,5 +53,5 @@ from src.services import search
 )
 def test_search(to_find: str, expected: dict) -> None:
     """Тест простой поисковой строки"""
-    assert search("data/operations.xls", to_find)[0] == expected
-    assert search("data/operations.xls", "idk") == []
+    assert search(pd.read_excel("data/operations.xls"), to_find)[0] == expected
+    assert search(pd.read_excel("data/operations.xls"), "idk") == []

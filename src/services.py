@@ -1,9 +1,8 @@
 import pandas as pd
 
 
-def search(filename: str, to_find: str) -> list:
+def search(data: pd.DataFrame, to_find: str) -> list:
     """Простой поиск по строке в категории/описании"""
-    data = pd.read_excel(filename)
     filtered_data = data[
         data["Описание"].str.contains(to_find, case=False)
         | data["Категория"].str.contains(to_find, case=False)
