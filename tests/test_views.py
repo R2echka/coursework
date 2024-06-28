@@ -1,9 +1,9 @@
 from unittest.mock import patch
 
+# import pytest
 # import sys, os
 # sys.path.append(os.getcwd())
-from src.views import (card_info, currency_rate, greeting, stock_rate,
-                       top_transactions)
+from src.views import card_info, currency_rate, greeting, stock_rate, top_transactions
 
 # import pytest
 
