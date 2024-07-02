@@ -1,43 +1,51 @@
 import os
-from datetime import datetime as dt
-from typing import Optional
 
-import pandas as pd
+# import sys
+# sys.path.append(os.getcwd())
+from datetime import datetime as dt
+
 import requests
 from dotenv import load_dotenv
 
+from src.logger import log_setup
+from src.utils import read_json, write_json
+
+log = log_setup()
 load_dotenv()
 apikey = os.getenv("api_key")
 stock_apikey = os.getenv("stock_api")
 
 
-def greeting(dt_: Optional[str] = None) -> str:
+def greeting(dt_: str) -> str:
     """Приветствие программы в зависимости от времени"""
-    if dt_ is None:
+    if dt_ == "":
         formated_date = dt.strptime(str(dt.now()), "%Y-%m-%d %H:%M:%S.%f")
     else:
         formated_date = dt.strptime(dt_, "%Y-%m-%d %H:%M:%S")
     hour = int(formated_date.strftime("%H"))
     if hour < 7:
-        return "Доброй ночи"
+        greet = "Доброй ночи"
     elif 6 < hour < 13:
-        return "Доброе утро"
+        greet = "Доброе утро"
     elif 12 < hour < 19:
-        return "Добрый день"
+        greet = "Добрый день"
     else:
-        return "Добрый вечер"
+        greet = "Добрый вечер"
+    log.info(f"Приветствие будет {greet}")
+    return greet
 
 
-def card_info(data: pd.DataFrame) -> list:
+def card_info(data: list) -> list:
     """Информация по каждой карте в формате словаря"""
-    cards = set(data["Номер карты"])
     card_info_list = []
-    for card in cards:
-        if str(card)[0] == "*":
+    unique_cards_set = set()
+    for operation in data:
+        card = operation["Номер карты"]
+        if str(card)[0] == "*" and str(card)[1:] not in unique_cards_set:
+            unique_cards_set.add(str(card)[1:])
             last_digits = str(card)[1:]
             total_spent = 0.0
-            for _, row in data[data["Номер карты"] == card].iterrows():
-                total_spent += row["Сумма платежа"]
+            total_spent += operation["Сумма платежа"]
             cashback = total_spent % 100
             info = {
                 "last_digits": last_digits,
@@ -48,36 +56,53 @@ def card_info(data: pd.DataFrame) -> list:
     return sorted(card_info_list, key=lambda x: int(x["last_digits"]))
 
 
-def top_transactions(data: pd.DataFrame) -> list:
+def top_transactions(data: list) -> list:
     """Выводит топ-5 транзакций в формате словаря"""
-    transactions = data.sort_values("Сумма операции", key=abs, ascending=False)
+    transactions = sorted(data, key=lambda x: abs(x["Сумма платежа"]))
     top = []
-    for _, row in transactions.head().iterrows():
+    for transaction in transactions[-5:]:
         top.append(
             {
-                "date": row["Дата операции"][:10],
-                "amount": abs(row["Сумма операции"]),
-                "category": row["Категория"],
-                "description": row["Описание"],
+                "date": transaction["Дата операции"][:10],
+                "amount": abs(transaction["Сумма операции"]),
+                "category": transaction["Категория"],
+                "description": transaction["Описание"],
             }
         )
     return top
 
 
-def currency_rate(currency: str) -> float:
-    """Выводит актуальную информацию по курсу валют через api-ключ"""
-    url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
-    response = requests.get(url, headers={"apikey": apikey}, timeout=40)
-    data = response.json()
-    return round(data["rates"]["RUB"], 2)
+def currency_rates(currencies: list) -> list:
+    """Выводит курс валют из переданного списка"""
+    rates = []
+    for currency in currencies:
+        url = f"https://api.apilayer.com/exchangerates_data/latest?symbols=RUB&base={currency}"
+        response = requests.get(url, headers={"apikey": apikey}, timeout=40)
+        data = round(response.json()["rates"]["RUB"], 2)
+        rates.append({"currency": currency, "rate": data})
+    return rates
 
 
-def stock_rate(stock: str) -> float:
+def stock_rates(stocks: list) -> list:
     """Выводит актуальную стоимость акиций из S&P 500"""
-    url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={stock}&apikey={stock_apikey}"
-    response = requests.get(url, timeout=30)
-    data = response.json()
-    if data["Global Quote"]:
-        return round(float(data["Global Quote"]["02. open"]), 2)
-    else:
-        return 0.0
+    rates = []
+    for stock in stocks:
+        url = f"https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={stock}&apikey={stock_apikey}"
+        response = requests.get(url, timeout=30)
+        data = round(float(response.json()["Global Quote"]["02. open"]), 2)
+        # 25 бесплатныз запросов в день, если выдаёт ошибку - они закончились, программа работает
+        rates.append({"stock": stock, "rate": data})
+    return rates
+
+
+def views(date: str, data: list) -> dict:
+    """Объединение функций файла views.py"""
+    result = {
+        "greeting": greeting(date),
+        "cards": card_info(data),
+        "top transactions": top_transactions(data),
+        "currency rates": currency_rates(read_json("user_settings.json")[0]["user_currencies"]),
+        "stock rates": stock_rates(read_json("user_settings.json")[0]["user_stocks"]),
+    }
+    write_json("views.json", result)
+    return result

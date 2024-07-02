@@ -1,9 +1,10 @@
-import pandas as pd
 import pytest
+
+from src.services import search
 
 # import sys, os
 # sys.path.append(os.getcwd())
-from src.services import search
+from src.utils import excel_reader
 
 
 @pytest.mark.parametrize(
@@ -53,5 +54,5 @@ from src.services import search
 )
 def test_search(to_find: str, expected: dict) -> None:
     """Тест простой поисковой строки"""
-    assert search(pd.read_excel("data/operations.xls"), to_find)[0] == expected
-    assert search(pd.read_excel("data/operations.xls"), "idk") == []
+    assert search(excel_reader("data/operations.xls"), to_find)[0] == expected
+    assert search(excel_reader("data/operations.xls"), "idk") == []

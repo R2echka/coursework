@@ -6,16 +6,44 @@ authors = ["Reechka <R2echka@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
-black = "^24.4.2"
-flake8 = "^7.0.0"
-mypy = "^1.10.0"
 isort = "^5.13.2"
 requests = "^2.32.3"
 pandas = "^2.2.2"
 datetime = "^5.5"
 pytest = "^8.2.2"
 
+[tool.poetry.group.lint.dependencies]
+python = "^3.12"
+black = "^24.4.2"
+flake8 = "^7.0.0"
+mypy = "^1.10.0"
+
+[tool.mypy]
+disallow_untyped_defs = true
+ignore_missing_imports = true
+no_implicit_optional = true
+warn_return_any = true
+exclude = 'venv'
+
+[tool.isort]
+line_length = 120
+profile = "black"
+multi_line_output = 3
+
+[tool.black]
+line-length = 120
+exclude = '''
+(
+  /(
+      \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+)
+)
+'''
 
 [build-system]
 requires = ["poetry-core"]
