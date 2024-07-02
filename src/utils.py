@@ -12,7 +12,7 @@ log = log_setup()
 
 
 def excel_reader(filename: str) -> list:
-    """Читает xlsx файл по переданному пути"""
+    """Читает xlsx/xls файл по переданному пути"""
     if filename.endswith(".xlsx") or filename.endswith(".xls"):
         try:
             data = pd.read_excel(filename)
