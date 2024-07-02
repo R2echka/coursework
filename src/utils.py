@@ -1,10 +1,10 @@
 # import os, sys
 # sys.path.append(os.getcwd())
 import json
-from typing import Any
 
 import numpy as np
 import pandas as pd
+from typing import Any
 
 from src.logger import log_setup
 
@@ -25,9 +25,6 @@ def excel_reader(filename: str) -> list:
     else:
         log.info("Данный файл имеет некорректный формат")
         return []
-
-
-# print(excel_reader('data/operations.xls')[0])
 
 
 def read_json(filename: str) -> list:
