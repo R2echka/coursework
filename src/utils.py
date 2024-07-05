@@ -1,10 +1,10 @@
 # import os, sys
 # sys.path.append(os.getcwd())
 import json
+from typing import Any
 
 import numpy as np
 import pandas as pd
-from typing import Any
 
 from src.logger import log_setup
 
