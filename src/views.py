@@ -97,12 +97,20 @@ def stock_rates(stocks: list) -> list:
 
 def views(date: str, data: list) -> dict:
     """Объединение функций файла views.py"""
+    try:
+        currency = currency_rates(read_json("user_settings.json")[0]["user_currencies"])
+    except IndexError:
+        currency = 'Бесплатные api-запросы закончились'
+    try:
+        stock = stock_rates(read_json("user_settings.json")[0]["user_stocks"])
+    except IndexError:
+        stock = 'Бесплатные api-запросы закончились'
     result = {
         "greeting": greeting(date),
         "cards": card_info(data),
         "top transactions": top_transactions(data),
-        "currency rates": currency_rates(read_json("user_settings.json")[0]["user_currencies"]),
-        "stock rates": stock_rates(read_json("user_settings.json")[0]["user_stocks"]),
+        "currency rates": currency,
+        "stock rates": stock,
     }
     write_json("views.json", result)
     return result
